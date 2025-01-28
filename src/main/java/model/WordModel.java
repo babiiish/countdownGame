@@ -65,4 +65,22 @@ public class WordModel {
             }
         }
     }
+
+    public boolean isWordEnglishValid(String word) {
+        return wordList.contains(word.toLowerCase());
+    }
+
+    public boolean isWordFromLetters(List<Character> letters, String word) {
+        Map<Character, Integer> letterCounts = new HashMap<>();
+        for (char c : letters) {
+            letterCounts.put(c, letterCounts.getOrDefault(c, 0) + 1);
+        }
+        for (char c : word.toCharArray()) {
+            if (!letterCounts.containsKey(c) || letterCounts.get(c) == 0) {
+                return false;
+            }
+            letterCounts.put(c, letterCounts.get(c) - 1);
+        }
+        return true;
+    }
 }

@@ -26,6 +26,14 @@ public class CountdownController {
         List<Character> letters = letterModel.generateLetters(numVowels, numConsonants);
         view.displayLetters(letters);
 
+        String userWord = view.getWord();
+
+        if (userWord != null && !userWord.isEmpty() && wordModel.isWordEnglishValid(userWord) && wordModel.isWordFromLetters(letters, userWord)) {
+            System.out.println("You entered: " + userWord);
+        } else {
+            System.out.println("No word entered!");
+        }
+
         String longestWord = wordModel.findLongestWord(letters);
         view.displayRoundResult(longestWord, 0);
     }

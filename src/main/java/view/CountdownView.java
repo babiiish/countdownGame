@@ -26,4 +26,14 @@ public class CountdownView {
     public void displayRoundResult(String longestWord, int score) {
         System.out.println("Longest word: " + longestWord + " (Score: " + score + ")");
     }
+
+    public String getWord() {
+        final String[] userInput = {null};
+
+        System.out.print("\nEnter your word: ");
+        Scanner scanner = new Scanner(System.in);
+        userInput[0] = scanner.nextLine();
+
+        return userInput[0];
+    }
 }
