@@ -3,15 +3,16 @@ package model;
 import java.util.*;
 
 public class LetterModel {
+    private final List<Character> letters;
 
     public LetterModel() {
+        this.letters = new ArrayList<>();
     }
 
     public List<Character> generateLetters(int numVowels, int numConsonants) {
         String vowels = "aeiou";
         String consonants = "bcdfghjklmnpqrstvwxyz";
 
-        List<Character> letters = new ArrayList<>();
         Random random = new Random();
 
         for (int i = 0; i < numVowels; i++) {
