@@ -6,6 +6,10 @@ import view.CountdownView;
 
 import java.util.List;
 
+
+/**
+ * CountdownController handles the interaction between the view and the models: LetterModel, WordModel.
+ */
 public class CountdownController {
     private final LetterModel letterModel;
     private final WordModel wordModel;
