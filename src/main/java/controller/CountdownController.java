@@ -1,16 +1,19 @@
 package controller;
 
-import model.CountdownModel;
+import model.LetterModel;
+import model.WordModel;
 import view.CountdownView;
 
 import java.util.List;
 
 public class CountdownController {
-    private final CountdownModel model;
+    private final LetterModel letterModel;
+    private final WordModel wordModel;
     private final CountdownView view;
 
-    public CountdownController(CountdownModel model, CountdownView view) {
-        this.model = model;
+    public CountdownController(LetterModel letterModel, WordModel wordModel, CountdownView view) {
+        this.letterModel = letterModel;
+        this.wordModel = wordModel;
         this.view = view;
     }
 
@@ -20,7 +23,10 @@ public class CountdownController {
         int numVowels = view.getVowels();
         int numConsonants = 9 - numVowels;
 
-        List<Character> letters = model.generateLetters(numVowels, numConsonants);
+        List<Character> letters = letterModel.generateLetters(numVowels, numConsonants);
         view.displayLetters(letters);
+
+        String longestWord = wordModel.findLongestWord(letters);
+        view.displayRoundResult(longestWord, 0);
     }
 }

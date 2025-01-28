@@ -2,13 +2,9 @@ package model;
 
 import java.util.*;
 
-public class CountdownModel {
-    private final Set<String> wordList;
-    private int totalScore;
+public class LetterModel {
 
-    public CountdownModel(Set<String> wordList) {
-        this.wordList = wordList;
-        this.totalScore = 0;
+    public LetterModel() {
     }
 
     public List<Character> generateLetters(int numVowels, int numConsonants) {

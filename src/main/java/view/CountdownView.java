@@ -22,4 +22,8 @@ public class CountdownView {
     public void displayLetters(List<Character> letters) {
         System.out.println("Your letters are: " + letters);
     }
+
+    public void displayRoundResult(String longestWord, int score) {
+        System.out.println("Longest word: " + longestWord + " (Score: " + score + ")");
+    }
 }
