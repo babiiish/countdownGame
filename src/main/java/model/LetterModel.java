@@ -6,10 +6,9 @@ import java.util.*;
  * LetterModel is a class responsible for handling letter-related operations
  */
 public class LetterModel {
-    private final List<Character> letters;
 
     public LetterModel() {
-        this.letters = new ArrayList<>();
+        List<Character> letters = new ArrayList<>();
     }
 
 /**
@@ -22,6 +21,8 @@ public class LetterModel {
     public List<Character> generateLetters(int numVowels, int numConsonants) {
         String vowels = "aeiou";
         String consonants = "bcdfghjklmnpqrstvwxyz";
+
+        List<Character> letters = new ArrayList<>(); // Create a new list each time
 
         Random random = new Random();
 

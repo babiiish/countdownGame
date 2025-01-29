@@ -1,7 +1,15 @@
 package view;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * CountdownView handles the user interface for the Countdown Letter Game.
@@ -59,61 +67,43 @@ public class CountdownView {
         return userInput[0];
     }
 
-    /*    */
-
-    /**
-     * @param seconds
-     *//*
-    public void displayCountdown(int seconds) {
-        System.out.println("You have "+ seconds + " seconds to think of a word!");
-        System.out.print("Time remaining: ");
-        for (int i = seconds; i >= 0; i--) {
-            System.out.print("\rTime remaining: " + i + " seconds ");
-            try {
-                Thread.sleep(1000); // Pause for 1 second
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("\nTimer interrupted!");
-                return;
-            }
-        }
-        System.out.println("\rTime is up!                     "); // Clear the line
-    }*/
     public String getInputWithCountdown(int seconds) {
-        final String[] userInput = {null};
-        Thread inputThread = new Thread(() -> {
-            System.out.print("Enter your word: ");
-            Scanner scanner = new Scanner(System.in);
-            userInput[0] = scanner.nextLine();
-        });
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+        AtomicReference<String> userInput = new AtomicReference<>(null);
+        AtomicBoolean inputEntered = new AtomicBoolean(false);
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        Thread countdownThread = new Thread(() -> {
-            System.out.println("Countdown started!");
-            for (int i = seconds; i >= 0; i--) {
-                System.out.print("\rTime remaining: " + i + " seconds  ");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
+        System.out.println("You have " + seconds + " seconds to form a word!");
+        System.out.print("Enter your word: \n");
+
+        // Task to read user input
+        scheduler.schedule(() -> {
+            try {
+                String input = br.readLine();
+                if (input != null && !input.isEmpty()) {
+                    userInput.set(input.trim());
+                    inputEntered.set(true);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            if (userInput[0] == null) {
-                System.out.println("\nTime's up!");
-            }
-        });
+        }, 0, TimeUnit.SECONDS);
 
-        inputThread.start();
-        countdownThread.start();
+        // Task to handle timeout
+        scheduler.schedule(() -> {
+            if (!inputEntered.get()) {
+                inputEntered.set(true); // Mark input as handled
+            }
+        }, seconds, TimeUnit.SECONDS);
 
         try {
-            inputThread.join();
-            countdownThread.interrupt();
+            scheduler.awaitTermination(seconds + 1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println("Error during input handling!");
         }
 
-        return userInput[0];
+        scheduler.shutdown(); // Ensure scheduler stops
+
+        return userInput.get() != null ? userInput.get() : "";
     }
 }
