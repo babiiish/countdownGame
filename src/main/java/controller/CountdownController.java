@@ -30,7 +30,10 @@ public class CountdownController {
         List<Character> letters = letterModel.generateLetters(numVowels, numConsonants);
         view.displayLetters(letters);
 
-        String userWord = view.getWord();
+//        view.displayCountdown(30);
+//        String userWord = view.getWord();
+
+        String userWord = view.getInputWithCountdown(30);
 
         if (userWord != null && !userWord.isEmpty() && wordModel.isWordEnglishValid(userWord) && wordModel.isWordFromLetters(letters, userWord)) {
             System.out.println("You entered: " + userWord);
