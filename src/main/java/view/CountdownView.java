@@ -175,9 +175,17 @@
                 flushInputBuffer();
                 return "";
             } catch (Exception e) {
+                flushInputBuffer();
                 return "";
             } finally {
                 executor.shutdownNow();
+            }
+        }
+
+        public void closeScanner() {
+            try {
+                scanner.close();
+            } catch(IOException ignored) {
             }
         }
 

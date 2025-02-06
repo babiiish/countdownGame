@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class CountdownController {
     private static final int ROUND_TIME_LIMIT = 5; // Configurable timer
-    private static final int ROUND_LENGTH = 1;
+    private static final int ROUND_LENGTH = 4;
     private static final String VOWELS = "aeiou";
     private static final String CONSONANTS = "bcdfghjklmnpqrstvwxyz";
 
@@ -58,12 +58,15 @@ public class CountdownController {
             possibleScore += longestWord.length();
 
             playerModel.incrementRounds();
-            view.displayGameState(CountdownView.MessageType.USER_WORD_SCORE, userWord, String.valueOf(playerModel.getScore()), longestWord);
+            view.displayGameState(CountdownView.MessageType.USER_WORD_SCORE, userWord, String.valueOf(roundScore), longestWord);
         }
 
         view.displayGameState(CountdownView.MessageType.FINAL_RESULT, String.valueOf(playerModel.getScore()), String.valueOf(possibleScore));
         displayPreviousScores();
         saveScoreToFile();
+
+        view.closeScanner();
+        System.exit(0);
     }
 
     private int calculateScore(String word) {
@@ -73,7 +76,7 @@ public class CountdownController {
     public void saveScoreToFile() {
         try (FileWriter writer = new FileWriter("src/main/resources/score.txt", true)) {
             writer.write(playerModel.toString() + "\n");  //
-            System.out.println("Score saved successfully!");
+            System.out.println("\nScore saved successfully!");
         } catch (IOException e) {
             System.out.println("Error saving score: " + e.getMessage());
         }
@@ -106,7 +109,7 @@ public class CountdownController {
         }
 
         if (!foundCurrentPlayer) {
-            System.out.println("Your score: " + playerModel.getScore());
+            System.out.println("\nYour score: " + playerModel.getScore());
             System.out.println("You are not in the top 5.");
         }
     }
@@ -126,7 +129,7 @@ public class CountdownController {
 
     private int validateAndScoreWord(String userWord, List<Character> letters) {
         if (userWord == null || userWord.isEmpty()) {
-            view.displayErrorMessage(CountdownView.MessageType.INVALID_WORD_FROM_LETTERS);
+            view.displayErrorMessage(CountdownView.MessageType.NO_WORDS);
             return 0;
         } else if (!wordModel.isWordFromLetters(letters, userWord)) {
             view.displayErrorMessage(CountdownView.MessageType.INVALID_WORD_FROM_LETTERS);
