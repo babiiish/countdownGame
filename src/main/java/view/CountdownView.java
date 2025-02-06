@@ -3,7 +3,6 @@
     import java.io.BufferedReader;
     import java.io.IOException;
     import java.io.InputStreamReader;
-    import java.util.List;
     import java.util.concurrent.*;
 
     /**
@@ -16,11 +15,70 @@
             this.scanner = new BufferedReader(new InputStreamReader(System.in));
         }
 
+        public enum MessageType {
+
+            // Error Messages
+            NO_WORDS,
+            INVALID_WORD_FROM_LETTERS,
+            WORD_NOT_ENGLISH,
+
+            // Game State Messages
+            INTRODUCTION,
+            DISPLAY_LETTERS,
+            DISPLAY_ROUNDS,
+            USER_WORD_SCORE,
+            FINAL_RESULT,
+        }
+
         /**
-         * Displays the introduction at beginning of the game.
+         * Displays game state such as introduction, round, round score and final game result.
+         *
+         * @param messageType The type of result message to display.
+         * @param args        Additional data such as the word entered, score, or total score.
          */
-        public void displayIntroduction() {
-            System.out.println("Welcome to the Countdown Letter Game!");
+        public void displayGameState(MessageType messageType, String... args) {
+            switch (messageType) {
+                case INTRODUCTION:
+                    System.out.println("Welcome to the Countdown Letter Game!");
+                    break;
+                case DISPLAY_LETTERS:
+                    System.out.println("Your letters are: " + args[0]);
+                    break;
+                case DISPLAY_ROUNDS:
+                    System.out.println("\nRound " + args[0] +"\n");
+                    break;
+                case USER_WORD_SCORE:
+                    System.out.println("Longest word: " + args[2]);
+                    System.out.println("You entered: " + args[0] + " (Score: " + args[1] + ")");
+                    break;
+                case FINAL_RESULT:
+                    System.out.println("\nGame Over! Your total score is: " + args[0] + " out of " + args[1]);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid game result message type: " + messageType);
+            }
+        }
+
+
+        /**
+         * Displays error messages related to user input.
+         *
+         * @param messageType The type of error message to display.
+         */
+        public void displayErrorMessage(MessageType messageType) {
+            switch (messageType) {
+                case NO_WORDS:
+                    System.out.println("\nNo word entered within the time limit.\n");
+                    break;
+                case INVALID_WORD_FROM_LETTERS:
+                    System.out.println("\nInvalid word! Your word must be formed using the given letters.\n");
+                    break;
+                case WORD_NOT_ENGLISH:
+                    System.out.println("\nInvalid word! The word is not found in the English dictionary.\n");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid error message type: " + messageType);
+            }
         }
 
         /**
@@ -47,21 +105,6 @@
         }
 
         /**
-         * Displays the letters generated for the user.
-         */
-        public void displayLetters(List<Character> letters) {
-            System.out.println("Your letters are: " + letters);
-        }
-
-        /**
-         * Displays the results for the round including score and longest word.
-         */
-        public void displayRoundResult(String longestWord, int score) {
-            System.out.println("Longest word: " + longestWord);
-            System.out.println("Total Score: " + score);
-        }
-
-        /**
          * Prompts user to input a word.
          *
          * @return Word entered by the user
@@ -74,10 +117,6 @@
             userInput[0] = scanner.readLine();
 
             return userInput[0].toLowerCase();
-        }
-
-        public void displayFinalResult(int score, int possibleScore) {
-            System.out.println("\nGame Over! Your total score is: " + score + " out of " + possibleScore);
         }
 
         /**

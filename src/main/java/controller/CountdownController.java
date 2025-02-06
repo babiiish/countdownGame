@@ -30,38 +30,29 @@ public class CountdownController {
     }
 
     public void playGame() {
-        view.displayIntroduction();
+        view.displayGameState(CountdownView.MessageType.INTRODUCTION);
 
         for (int round = 1; round <= ROUND_LENGTH; round++) {
-            System.out.println("\nRound " + round + "\n");
+            view.displayGameState(CountdownView.MessageType.DISPLAY_ROUNDS, String.valueOf(round));
 
             int numVowels = view.getVowels();
             int numConsonants = 9 - numVowels;
 
             List<Character> letters = letterModel.generateLetters(numVowels, numConsonants);
-            view.displayLetters(letters);
+            view.displayGameState(CountdownView.MessageType.DISPLAY_LETTERS, String.valueOf(letters));
 
             String userWord = view.getWordWithCountdown(ROUND_TIME_LIMIT);
 
-            if (userWord == null || userWord.isEmpty()) {
-                System.out.println("\nNo word entered within the time limit.");
-            } else if (!wordModel.isWordFromLetters(letters, userWord)) {
-                System.out.println("\nInvalid word! Your word must be formed using the given letters.");
-            } else if (!wordModel.isWordEnglishValid(userWord)) {
-                System.out.println("\nInvalid word! The word is not found in the English dictionary.");
-            } else {
-                int wordScore = calculateScore(userWord); // Scoring logic
-                score += wordScore;
-                System.out.println("\nYou entered: " + userWord + " (Score: " + wordScore + ")");
-            }
+            int roundScore = validateAndScoreWord(userWord, letters);
+            score += roundScore;
 
             String longestWord = wordModel.findLongestWord(letters);
             possibleScore += longestWord.length();
 
-            view.displayRoundResult(longestWord, score);
+            view.displayGameState(CountdownView.MessageType.USER_WORD_SCORE, userWord, String.valueOf(score), longestWord);
         }
 
-        view.displayFinalResult(score, possibleScore);
+        view.displayGameState(CountdownView.MessageType.FINAL_RESULT, String.valueOf(score), String.valueOf(possibleScore));
         displayPreviousScores();
         saveScoreToFile(score);
     }
@@ -88,6 +79,22 @@ public class CountdownController {
             }
         } catch (IOException e) {
             System.out.println("No previous scores found.");
+        }
+    }
+
+    private int validateAndScoreWord(String userWord, List<Character> letters) {
+        if (userWord == null || userWord.isEmpty()) {
+            view.displayErrorMessage(CountdownView.MessageType.INVALID_WORD_FROM_LETTERS);
+            return 0;
+        } else if (!wordModel.isWordFromLetters(letters, userWord)) {
+            view.displayErrorMessage(CountdownView.MessageType.INVALID_WORD_FROM_LETTERS);
+            return 0;
+        } else if (!wordModel.isWordEnglishValid(userWord)) {
+            view.displayErrorMessage(CountdownView.MessageType.WORD_NOT_ENGLISH);
+            return 0;
+        } else {
+            // Scoring logic
+            return calculateScore(userWord);
         }
     }
 }
