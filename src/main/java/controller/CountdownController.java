@@ -18,7 +18,7 @@ import java.util.Random;
  * CountdownController handles the interaction between the view and the models: LetterModel, WordModel.
  */
 public class CountdownController {
-    private static final int ROUND_TIME_LIMIT = 5; // Configurable timer
+    private static final int ROUND_TIME_LIMIT = 30; // Configurable timer
     private static final int ROUND_LENGTH = 4;
     private static final String VOWELS = "aeiou";
     private static final String CONSONANTS = "bcdfghjklmnpqrstvwxyz";

@@ -38,10 +38,8 @@ The project uses a **Model-View-Controller** (MVC) architecture:
 
 ```bash
 $ git clone https://github.com/babiiish/countdownGame.git
-$ cd src
-$ cd main
-$ cd java
-$ java -cp bin Main.java
+$ cd countdownGame
+$ ./gradlew run
 ```
 
 
