@@ -1,5 +1,6 @@
 import controller.CountdownController;
 import model.LetterModel;
+import model.PlayerModel;
 import model.WordModel;
 import view.CountdownView;
 
@@ -9,12 +10,15 @@ public class Main {
     public static void main(String[] args) {
         LetterModel letterModel;
         WordModel wordModel;
+        PlayerModel playerModel;
         String wordListPath = "src/main/resources/words_alpha.txt";
 
         letterModel = new LetterModel();
         wordModel = new WordModel(wordListPath);
+        playerModel = new PlayerModel("", 0, 0);
+
         CountdownView countdownView = new CountdownView();
-        CountdownController countdownController = new CountdownController(letterModel, wordModel, countdownView);
+        CountdownController countdownController = new CountdownController(letterModel, wordModel, playerModel, countdownView);
 
         countdownController.playGame();
     }

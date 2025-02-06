@@ -1,6 +1,7 @@
 package controller;
 
 import model.LetterModel;
+import model.PlayerModel;
 import model.WordModel;
 import view.CountdownView;
 
@@ -10,32 +11,34 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-
 /**
  * CountdownController handles the interaction between the view and the models: LetterModel, WordModel.
  */
 public class CountdownController {
     private static final int ROUND_TIME_LIMIT = 5; // Configurable timer
-    private static final int ROUND_LENGTH = 2;
+    private static final int ROUND_LENGTH = 1;
     private static final String VOWELS = "aeiou";
     private static final String CONSONANTS = "bcdfghjklmnpqrstvwxyz";
 
     private final LetterModel letterModel;
     private final WordModel wordModel;
+    private final PlayerModel playerModel;
+
     private final CountdownView view;
 
-    private int score;
     private int possibleScore;
     private final Random random = new Random();
 
-    public CountdownController(LetterModel letterModel, WordModel wordModel, CountdownView view) {
+    public CountdownController(LetterModel letterModel, WordModel wordModel, PlayerModel playerModel, CountdownView view) {
         this.letterModel = letterModel;
         this.wordModel = wordModel;
+        this.playerModel = playerModel;
         this.view = view;
     }
 
     public void playGame() {
         view.displayGameState(CountdownView.MessageType.INTRODUCTION);
+        playerModel.setName(view.getPlayerName());
 
         for (int round = 1; round <= ROUND_LENGTH; round++) {
             view.displayGameState(CountdownView.MessageType.DISPLAY_ROUNDS, String.valueOf(round));
@@ -49,42 +52,76 @@ public class CountdownController {
             String userWord = view.getWordWithCountdown(ROUND_TIME_LIMIT);
 
             int roundScore = validateAndScoreWord(userWord, letterModel.getLetters());
-            score += roundScore;
+            playerModel.addScore(roundScore);
 
             String longestWord = wordModel.findLongestWord(letterModel.getLetters());
             possibleScore += longestWord.length();
 
-            view.displayGameState(CountdownView.MessageType.USER_WORD_SCORE, userWord, String.valueOf(score), longestWord);
+            playerModel.incrementRounds();
+            view.displayGameState(CountdownView.MessageType.USER_WORD_SCORE, userWord, String.valueOf(playerModel.getScore()), longestWord);
         }
 
-        view.displayGameState(CountdownView.MessageType.FINAL_RESULT, String.valueOf(score), String.valueOf(possibleScore));
+        view.displayGameState(CountdownView.MessageType.FINAL_RESULT, String.valueOf(playerModel.getScore()), String.valueOf(possibleScore));
         displayPreviousScores();
-        saveScoreToFile(score);
+        saveScoreToFile();
     }
 
     private int calculateScore(String word) {
         return word.length();
     }
 
-    public void saveScoreToFile(int score) {
-        try (FileWriter writer = new FileWriter("src/main/resources/score.txt", true)) {  // Append mode
-            writer.write("[Player] score: " + score + "\n");
+    public void saveScoreToFile() {
+        try (FileWriter writer = new FileWriter("src/main/resources/score.txt", true)) {
+            writer.write(playerModel.toString() + "\n");  //
             System.out.println("Score saved successfully!");
         } catch (IOException e) {
             System.out.println("Error saving score: " + e.getMessage());
         }
     }
 
+
     public void displayPreviousScores() {
+        List<PlayerModel> players = loadPlayersFromFile();
+        players.add(this.playerModel);
+
+        // Filter players by the current round (based on roundsPlayed)
+        List<PlayerModel> currentRoundPlayers = players.stream()
+                .filter(player -> player.getRoundsPlayed() == playerModel.getRoundsPlayed())
+                .sorted((p1, p2) -> Integer.compare(p2.getScore(), p1.getScore()))  // Sort by score in descending order
+                .limit(5)  // Limit to top 5 players
+                .toList();
+
+        boolean foundCurrentPlayer = false;
+        int rank = 1;
+
+        System.out.println("\nTop 5 Players:");
+        for (PlayerModel player : currentRoundPlayers) {
+            if (player.equals(playerModel)) {
+                foundCurrentPlayer = true;
+                System.out.println("Your current rank: #" + rank + " - " + player.getName() + " - Score: " + player.getScore());
+            } else {
+                System.out.println("#" + rank + " - " + player.getName() + " - Score: " + player.getScore());
+            }
+            rank++;
+        }
+
+        if (!foundCurrentPlayer) {
+            System.out.println("Your score: " + playerModel.getScore());
+            System.out.println("You are not in the top 5.");
+        }
+    }
+
+    private List<PlayerModel> loadPlayersFromFile() {
+        List<PlayerModel> players = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/score.txt"))) {
-            System.out.println("\nPrevious Scores:");
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                players.add(PlayerModel.fromString(line));  // Convert string to PlayerModel object
             }
         } catch (IOException e) {
-            System.out.println("No previous scores found.");
+            System.out.println("Error reading scores: " + e.getMessage());
         }
+        return players;
     }
 
     private int validateAndScoreWord(String userWord, List<Character> letters) {

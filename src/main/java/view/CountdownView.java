@@ -71,6 +71,16 @@
             return input;
         }
 
+        public String getPlayerName() {
+            String input = "";
+            try {
+                System.out.println("What is your name? ");
+                input = scanner.readLine().toLowerCase();
+            } catch (IOException ignored) {
+            }
+            return input;
+        }
+
         /**
          * Displays error messages related to user input.
          *

@@ -9,7 +9,7 @@ public class LetterModel {
     private List<Character> letters;
 
     public LetterModel() {
-        this.letters = letters;
+        this.letters = new ArrayList<>();
     }
 
     public List<Character> getLetters() {
