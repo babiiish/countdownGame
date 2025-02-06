@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -17,11 +17,16 @@ import java.util.List;
 public class CountdownController {
     private static final int ROUND_TIME_LIMIT = 5; // Configurable timer
     private static final int ROUND_LENGTH = 2;
+    private static final String VOWELS = "aeiou";
+    private static final String CONSONANTS = "bcdfghjklmnpqrstvwxyz";
+
     private final LetterModel letterModel;
     private final WordModel wordModel;
     private final CountdownView view;
+
     private int score;
     private int possibleScore;
+    private final Random random = new Random();
 
     public CountdownController(LetterModel letterModel, WordModel wordModel, CountdownView view) {
         this.letterModel = letterModel;
@@ -35,18 +40,18 @@ public class CountdownController {
         for (int round = 1; round <= ROUND_LENGTH; round++) {
             view.displayGameState(CountdownView.MessageType.DISPLAY_ROUNDS, String.valueOf(round));
 
-            int numVowels = view.getVowels();
-            int numConsonants = 9 - numVowels;
+//            int numVowels = view.getVowels();
+//            int numConsonants = 9 - numVowels;
+//            letterModel.setLetters(generateAllLetters(numVowels, numConsonants));
 
-            List<Character> letters = letterModel.generateLetters(numVowels, numConsonants);
-            view.displayGameState(CountdownView.MessageType.DISPLAY_LETTERS, String.valueOf(letters));
+            letterModel.setLetters(generateLetters());
 
             String userWord = view.getWordWithCountdown(ROUND_TIME_LIMIT);
 
-            int roundScore = validateAndScoreWord(userWord, letters);
+            int roundScore = validateAndScoreWord(userWord, letterModel.getLetters());
             score += roundScore;
 
-            String longestWord = wordModel.findLongestWord(letters);
+            String longestWord = wordModel.findLongestWord(letterModel.getLetters());
             possibleScore += longestWord.length();
 
             view.displayGameState(CountdownView.MessageType.USER_WORD_SCORE, userWord, String.valueOf(score), longestWord);
@@ -96,5 +101,54 @@ public class CountdownController {
             // Scoring logic
             return calculateScore(userWord);
         }
+    }
+
+    /**
+     * Generates a list of characters given a specified number of vowels and consonants.
+     *
+     * @param numVowels The number of vowels.
+     * @param numConsonants The number of consonants.
+     * @return A shuffled list of characters.
+     */
+    public List<Character> generateAllLetters(int numVowels, int numConsonants) {
+        List<Character> letters = new ArrayList<>(); // Create a new list each time
+        for (int i = 0; i < numVowels; i++) {
+            letters.add(VOWELS.charAt(random.nextInt(VOWELS.length())));
+        }
+        for (int i = 0; i < numConsonants; i++) {
+            letters.add(CONSONANTS.charAt(random.nextInt(CONSONANTS.length())));
+        }
+        Collections.shuffle(letters);
+        return letters;
+    }
+
+    public List<Character> generateLetters() {
+        List<Character> letters = new ArrayList<>();
+        int vowelsCount = 0;
+        int consonantsCount = 0;
+
+        // First, let the player choose letters until the required vowel and consonant count is reached
+        while (letters.size() < 9) {
+            String choice = view.getVowelOrConsonantChoice();
+
+            if (choice.equals("v") && vowelsCount < 5) {  // Can add vowels only if vowels are less than 5
+                letters.add(VOWELS.charAt(random.nextInt(VOWELS.length())));
+                vowelsCount++;
+            } else if (choice.equals("c") && consonantsCount < 6) {  // Can add consonants only if consonants are less than 6
+                letters.add(CONSONANTS.charAt(random.nextInt(CONSONANTS.length())));
+                consonantsCount++;
+            } else if (!choice.equals("c") && !choice.equals("v")) {
+                view.displayErrorMessage(CountdownView.MessageType.INVALID_CHOICE_MESSAGE);
+                continue;
+            } else {
+                view.displayErrorMessage(CountdownView.MessageType.TOO_MANY_VOWELS_OR_CONSONANTS); // Invalid choice handling
+                continue;  // Continue prompting the player for valid input
+            }
+
+            // Display the current list of letters after each choice
+            view.displayGameState(CountdownView.MessageType.DISPLAY_LETTERS, String.valueOf(letters));
+        }
+
+        return letters;
     }
 }

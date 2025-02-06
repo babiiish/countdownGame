@@ -21,6 +21,8 @@
             NO_WORDS,
             INVALID_WORD_FROM_LETTERS,
             WORD_NOT_ENGLISH,
+            INVALID_CHOICE_MESSAGE,
+            TOO_MANY_VOWELS_OR_CONSONANTS,
 
             // Game State Messages
             INTRODUCTION,
@@ -32,7 +34,6 @@
 
         /**
          * Displays game state such as introduction, round, round score and final game result.
-         *
          * @param messageType The type of result message to display.
          * @param args        Additional data such as the word entered, score, or total score.
          */
@@ -59,6 +60,16 @@
             }
         }
 
+        public String getVowelOrConsonantChoice() {
+            String input = "";
+            try {
+                System.out.print("Do you want a vowel (v) or a consonant (c)? ");
+                input = scanner.readLine().toLowerCase();
+            } catch (IOException e) {
+                System.out.println("Invalid input. Please enter c or v.");
+            }
+            return input;
+        }
 
         /**
          * Displays error messages related to user input.
@@ -75,6 +86,12 @@
                     break;
                 case WORD_NOT_ENGLISH:
                     System.out.println("\nInvalid word! The word is not found in the English dictionary.\n");
+                    break;
+                case TOO_MANY_VOWELS_OR_CONSONANTS:
+                    System.out.println("\nYou have too many vowels or consonants!\n");
+                    break;
+                case INVALID_CHOICE_MESSAGE:
+                    System.out.println("\nInvalid choice! You can only enter [c] or [v].\n");
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid error message type: " + messageType);
