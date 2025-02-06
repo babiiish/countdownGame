@@ -134,7 +134,7 @@
                 System.out.println("Enter your word: ");
                 while (true) { // Need this, as without it scanner.readline still waits for input even after timeout
                     try {
-                        if (scanner.ready()) { // Checks if the user has inputted anything
+                        if (System.in.available() > 0) { // Checks if the user has inputted anything
                             return scanner.readLine();
                         }
                     } catch (IOException ignored) {}
@@ -145,6 +145,7 @@
                 return future.get(timeoutSeconds, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
                 future.cancel(true);
+                flushInputBuffer();
                 return "";
             } catch (Exception e) {
                 return "";
@@ -152,5 +153,19 @@
                 executor.shutdownNow();
             }
         }
+
+        /**
+         * Flushes the input buffer to prevent any unintended carry-over of user input.
+         * Removing unwanted input does not interfere with the next round.
+         */
+        private void flushInputBuffer() {
+            try {
+                while (System.in.available() > 0) {
+                    System.in.read(); // Consume extra input
+                }
+            } catch (IOException ignored) {}
+        }
     }
+
+
 
