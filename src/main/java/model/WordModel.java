@@ -74,11 +74,11 @@ public class WordModel {
      * Recursively generates all permutations of a specified length from an array of characters.
      * taken from <a href="https://stackoverflow.com/questions/10305153/generating-all-possible-permutations-of-a-list-recursively/10305419">...</a>.
      *
-     * @param chars An array of characters to generate permutations from.
-     * @param length    The target length of the permutations.
-     * @param used  A boolean array that keeps track of which characters have already been used in the current permutation.
-     * @param current   A StringBuilder that stores the current permutation being built.
-     * @param combinations  A list to store all generated permutations.
+     * @param chars        An array of characters to generate permutations from.
+     * @param length       The target length of the permutations.
+     * @param used         A boolean array that keeps track of which characters have already been used in the current permutation.
+     * @param current      A StringBuilder that stores the current permutation being built.
+     * @param combinations A list to store all generated permutations.
      */
     private void generatePermutations(char[] chars, int length, boolean[] used, StringBuilder current, List<String> combinations) {
         if (current.length() == length) {
@@ -111,7 +111,7 @@ public class WordModel {
      * Checks if a word can be formed from a given list of letters.
      *
      * @param letters A list of characters available to form the word.
-     * @param word The word to be checked.
+     * @param word    The word to be checked.
      * @return true if the word is formed from letters, otherwise false.
      */
     public boolean isWordFromLetters(List<Character> letters, String word) {

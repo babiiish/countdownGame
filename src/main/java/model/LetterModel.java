@@ -1,6 +1,7 @@
 package model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * LetterModel is a class responsible for handling letter-related operations

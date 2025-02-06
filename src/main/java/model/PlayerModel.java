@@ -11,6 +11,14 @@ public class PlayerModel {
         this.roundsPlayed = rounds;
     }
 
+    public static PlayerModel fromString(String playerString) {
+        String[] parts = playerString.split(",");
+        String name = parts[0];
+        int score = Integer.parseInt(parts[1]);
+        int roundsPlayed = Integer.parseInt(parts[2]);
+        return new PlayerModel(name, score, roundsPlayed);
+    }
+
     public String getName() {
         return name;
     }
@@ -43,14 +51,6 @@ public class PlayerModel {
     @Override
     public String toString() {
         return name + "," + score + "," + roundsPlayed;
-    }
-
-    public static PlayerModel fromString(String playerString) {
-        String[] parts = playerString.split(",");
-        String name = parts[0];
-        int score = Integer.parseInt(parts[1]);
-        int roundsPlayed = Integer.parseInt(parts[2]);
-        return new PlayerModel(name, score, roundsPlayed);
     }
 
 }

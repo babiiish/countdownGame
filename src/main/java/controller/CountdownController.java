@@ -9,7 +9,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 /**
  * CountdownController handles the interaction between the view and the models: LetterModel, WordModel.
@@ -25,9 +28,8 @@ public class CountdownController {
     private final PlayerModel playerModel;
 
     private final CountdownView view;
-
-    private int possibleScore;
     private final Random random = new Random();
+    private int possibleScore;
 
     public CountdownController(LetterModel letterModel, WordModel wordModel, PlayerModel playerModel, CountdownView view) {
         this.letterModel = letterModel;
@@ -36,16 +38,16 @@ public class CountdownController {
         this.view = view;
     }
 
+    /**
+     * This method controls the main flow of the Countdown game.
+     * It handles the introduction, player input, word validation, scoring, and displaying results.
+     */
     public void playGame() {
         view.displayGameState(CountdownView.MessageType.INTRODUCTION);
         playerModel.setName(view.getPlayerName());
 
         for (int round = 1; round <= ROUND_LENGTH; round++) {
             view.displayGameState(CountdownView.MessageType.DISPLAY_ROUNDS, String.valueOf(round));
-
-//            int numVowels = view.getVowels();
-//            int numConsonants = 9 - numVowels;
-//            letterModel.setLetters(generateAllLetters(numVowels, numConsonants));
 
             letterModel.setLetters(generateLetters());
 
@@ -63,16 +65,18 @@ public class CountdownController {
 
         view.displayGameState(CountdownView.MessageType.FINAL_RESULT, String.valueOf(playerModel.getScore()), String.valueOf(possibleScore));
         displayPreviousScores();
+
         saveScoreToFile();
 
         view.closeScanner();
         System.exit(0);
     }
 
-    private int calculateScore(String word) {
-        return word.length();
-    }
-
+    /**
+     * Saves the player's score to a text file.
+     * If the file does not exist, it will be created.
+     * If I/O error during the file writing process, an error message will be displayed.
+     */
     public void saveScoreToFile() {
         try (FileWriter writer = new FileWriter("src/main/resources/score.txt", true)) {
             writer.write(playerModel.toString() + "\n");  //
@@ -82,14 +86,20 @@ public class CountdownController {
         }
     }
 
-
+    /**
+     * Displays the top 5 players' scores (only players with the same amount of rounds) and the current player's rank.
+     * If the current player is not in the top 5, a message will be displayed showing their score.
+     * <p>
+     * The player details are retrieved from the `playerModel` object, and players are ranked by their score.
+     * Unfortunately, due to no UID, current Player is added to the player list.
+     */
     public void displayPreviousScores() {
         List<PlayerModel> players = loadPlayersFromFile();
         players.add(this.playerModel);
 
         // Filter players by the current round (based on roundsPlayed)
         List<PlayerModel> currentRoundPlayers = players.stream()
-                .filter(player -> player.getRoundsPlayed() == playerModel.getRoundsPlayed())
+                .filter(player -> player.getRoundsPlayed() == playerModel.getRoundsPlayed()) // Filters players
                 .sorted((p1, p2) -> Integer.compare(p2.getScore(), p1.getScore()))  // Sort by score in descending order
                 .limit(5)  // Limit to top 5 players
                 .toList();
@@ -114,6 +124,12 @@ public class CountdownController {
         }
     }
 
+    /**
+     * Reads player data from the "score.txt" file and converts each line into a `PlayerModel` object.
+     * If an error occurs while reading, an error message is printed.
+     *
+     * @return A list of `PlayerModel` objects representing players in the file.
+     */
     private List<PlayerModel> loadPlayersFromFile() {
         List<PlayerModel> players = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/score.txt"))) {
@@ -127,6 +143,16 @@ public class CountdownController {
         return players;
     }
 
+    /**
+     * Validates the user's word and calculates the score.
+     * - Checks if the word is non-empty.
+     * - Verifies the word can be formed from the provided letters.
+     * - Confirms the word is a valid English word.
+     *
+     * @param userWord The word entered by the user.
+     * @param letters  The list of letters to form the word.
+     * @return The score based on the length of the word, or 0 if invalid.
+     */
     private int validateAndScoreWord(String userWord, List<Character> letters) {
         if (userWord == null || userWord.isEmpty()) {
             view.displayErrorMessage(CountdownView.MessageType.NO_WORDS);
@@ -139,14 +165,14 @@ public class CountdownController {
             return 0;
         } else {
             // Scoring logic
-            return calculateScore(userWord);
+            return userWord.length();
         }
     }
 
     /**
      * Generates a list of characters given a specified number of vowels and consonants.
      *
-     * @param numVowels The number of vowels.
+     * @param numVowels     The number of vowels.
      * @param numConsonants The number of consonants.
      * @return A shuffled list of characters.
      */
@@ -162,6 +188,14 @@ public class CountdownController {
         return letters;
     }
 
+    /**
+     * Generates a list of 9 letters based on the player's choices, ensuring at least 3 vowels and 4 consonants.
+     * - Prompts the player to choose between vowels (v) and consonants (c).
+     * - The player can choose up to 5 vowels and 6 consonants.
+     * - Invalid input or exceeding the limit will display an error message.
+     *
+     * @return A list of 9 randomly generated letters based on the player's choices.
+     */
     public List<Character> generateLetters() {
         List<Character> letters = new ArrayList<>();
         int vowelsCount = 0;
