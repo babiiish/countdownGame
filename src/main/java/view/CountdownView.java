@@ -1,6 +1,7 @@
 package view;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.*;
@@ -56,7 +57,7 @@ public class CountdownView {
             System.out.print("Do you want a vowel (v) or a consonant (c)? ");
             input = scanner.readLine().toLowerCase();
         } catch (IOException e) {
-            System.out.println("Invalid input. Please enter c or v.");
+            System.out.println("Invalid " + input + " Please enter c or v.");
         }
         return input;
     }
@@ -105,44 +106,6 @@ public class CountdownView {
     }
 
     /**
-     * Prompts user to enter the number of vowels.
-     *
-     * @return Integer inputted by user.
-     */
-    public int getVowels() {
-        int numVowels;
-        while (true) {
-            System.out.println("Enter the number of vowels (1-3): ");
-            try {
-                String input = scanner.readLine();
-                numVowels = Integer.parseInt(input.trim()); // Trim to remove extra spaces
-
-                if (numVowels >= 1 && numVowels <= 3) {
-                    break;
-                }
-            } catch (NumberFormatException | IOException e) {
-                System.out.println("Invalid input. Please enter a number between 1 and 3.");
-            }
-        }
-        return numVowels;
-    }
-
-    /**
-     * Prompts user to input a word.
-     *
-     * @return Word entered by the user
-     * @throws IOException if there is an input/output error while reading the user input.
-     */
-    public String getWord() throws IOException {
-        final String[] userInput = {null};
-
-        System.out.print("\nEnter your word: \n");
-        userInput[0] = scanner.readLine();
-
-        return userInput[0].toLowerCase();
-    }
-
-    /**
      * Allows the user to enter a word with a time limit. If the user doesn't input a word within
      * the specified time, the input is cancelled, and an empty string is returned. Code is implemented with the help
      * of <a href="https://stackoverflow.com/questions/44038081/set-time-limit-on-user-input-scanner-java">...</a>
@@ -152,13 +115,15 @@ public class CountdownView {
      */
     public String getWordWithCountdown(Integer timeoutSeconds) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        Console console = System.console();
+
         Future<String> future = executor.submit(() -> {
             System.out.println("\nYou have " + timeoutSeconds + " seconds to make a word!");
             System.out.println("Enter your word: ");
             while (true) { // Need this, as without it scanner.readline still waits for input even after timeout
                 try {
                     if (System.in.available() > 0) { // Checks if the user has inputted anything
-                        return scanner.readLine();
+                        return console.readLine();
                     }
                 } catch (IOException ignored) {
                 }
@@ -169,10 +134,8 @@ public class CountdownView {
             return future.get(timeoutSeconds, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             future.cancel(true);
-            flushInputBuffer();
             return "";
         } catch (Exception e) {
-            flushInputBuffer();
             return "";
         } finally {
             executor.shutdownNow();
@@ -189,21 +152,7 @@ public class CountdownView {
         }
     }
 
-    /**
-     * Flushes the input buffer to prevent any unintended carry-over of user input.
-     * Removing unwanted input does not interfere with the next round.
-     */
-    private void flushInputBuffer() {
-        try {
-            while (System.in.available() > 0) {
-                System.in.read(); // Consume extra input
-            }
-        } catch (IOException ignored) {
-        }
-    }
-
     public enum MessageType {
-
         // Error Messages
         NO_WORDS,
         INVALID_WORD_FROM_LETTERS,

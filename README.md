@@ -5,6 +5,7 @@ My implementation of a Countdown game through Java. I use MVC, controller to han
 - [Overview](#overview)
 - [Usage](#usage)
 - [Running the Game](#running-the-game)
+- [Checklist](#checklist)
 
 ## Overview
 
@@ -36,10 +37,17 @@ The project uses a **Model-View-Controller** (MVC) architecture:
 2. Compile and run the program.
 3. The game will prompt you for inputs such as the player's name and letter choices.
 
+#### Windows
 ```bash
 $ git clone https://github.com/babiiish/countdownGame.git
 $ cd countdownGame
 $ ./gradlew run
 ```
 
+## Checklist
+- ✔️ The program should allow the user to choose Consonants/Vowels.
+- ✔️ The program should automatically identify the longest possible English word in each round and score the appropriate number of points for the round.
+  - The project uses this word list taken from GitHub: [Word List](https://github.com/dwyl/english-words/blob/master/words_alpha.txt)
+- ✔️ The program should allow for 4 rounds to be played.
+- ✔️ The program should keep track of the total points scored.
 

@@ -5,23 +5,21 @@ import model.PlayerModel;
 import model.WordModel;
 import view.CountdownView;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.io.*;
+import java.util.*;
 
 /**
  * CountdownController handles the interaction between the view and the models: LetterModel, WordModel.
  */
 public class CountdownController {
-    private static final int ROUND_TIME_LIMIT = 30; // Configurable timer
-    private static final int ROUND_LENGTH = 4;
     private static final String VOWELS = "aeiou";
     private static final String CONSONANTS = "bcdfghjklmnpqrstvwxyz";
+    private static int ROUND_TIME_LIMIT; // Configurable timer
+    private static int ROUND_LENGTH;
+
+    static {
+        loadConfig();
+    }
 
     private final LetterModel letterModel;
     private final WordModel wordModel;
@@ -36,6 +34,26 @@ public class CountdownController {
         this.wordModel = wordModel;
         this.playerModel = playerModel;
         this.view = view;
+    }
+
+    /**
+     * Loads game configuration settings from the `config.properties` file.
+     * This method reads values for `round_time_limit` and `round_length`,
+     * allowing the game settings to be modified externally without changing the code.
+     * Default length is 30 seconds and default round length is 4 seconds.
+     *
+     */
+    private static void loadConfig() {
+        Properties properties = new Properties();
+        try (FileInputStream input = new FileInputStream("src/main/resources/config.properties")) {
+            properties.load(input);
+            ROUND_TIME_LIMIT = Integer.parseInt(properties.getProperty("round_time_limit", "30"));
+            ROUND_LENGTH = Integer.parseInt(properties.getProperty("round_length", "4"));
+        } catch (IOException e) {
+            System.out.println("Error loading config: " + e.getMessage());
+            ROUND_TIME_LIMIT = 30; // Default value
+            ROUND_LENGTH = 4; // Default value
+        }
     }
 
     /**
@@ -167,25 +185,6 @@ public class CountdownController {
             // Scoring logic
             return userWord.length();
         }
-    }
-
-    /**
-     * Generates a list of characters given a specified number of vowels and consonants.
-     *
-     * @param numVowels     The number of vowels.
-     * @param numConsonants The number of consonants.
-     * @return A shuffled list of characters.
-     */
-    public List<Character> generateAllLetters(int numVowels, int numConsonants) {
-        List<Character> letters = new ArrayList<>(); // Create a new list each time
-        for (int i = 0; i < numVowels; i++) {
-            letters.add(VOWELS.charAt(random.nextInt(VOWELS.length())));
-        }
-        for (int i = 0; i < numConsonants; i++) {
-            letters.add(CONSONANTS.charAt(random.nextInt(CONSONANTS.length())));
-        }
-        Collections.shuffle(letters);
-        return letters;
     }
 
     /**
